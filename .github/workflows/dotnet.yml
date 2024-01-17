@@ -1,0 +1,52 @@
+name: tc-fase2-pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 7.0.x
+
+      - name: Restore dependencies
+        run: dotnet restore TechChallenge.sln
+
+      - name: Build
+        run: dotnet build TechChallenge.sln --no-restore
+
+      - name: UnitTest
+        run: dotnet test tests/TechChallenge.Application.UnitTests/TechChallenge.Application.UnitTests.csproj --no-build --verbosity normal
+
+      - name: ArchitectureTest
+        run: dotnet test tests/TechChallenge.ArchitectureTests/TechChallenge.ArchitectureTests.csproj --no-build --verbosity normal
+
+      - name: IntegrationTest
+        run: dotnet test tests/TechChallenge.Api.IntegrationTests/TechChallenge.Api.IntegrationTests.csproj --no-build --verbosity normal
+      
+      - name: Login no Container Registry
+        uses: docker/login-action@v1.6.0
+        with:
+          username: ${{ secrets.DOCKER_CONTAINER_REGISTRY_USERNAME }}
+          password: ${{ secrets.DOCKER_CONTAINER_REGISTRY_PASSWORD }}
+          registry: ${{ env.DOCKER_CONTAINER_REGISTRY_TOKEN }}
+        
+      - name: Build and Push Container Artifact on Docker Hub
+        run: |
+          docker build . --file src/TechChallenge.Api/Dockerfile -t techchallengephase2/tech-challenge2-pipeline:latest
+          docker push techchallengephase2/tech-challenge2-pipeline:latest
+     
+          
+
