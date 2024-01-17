@@ -42,6 +42,7 @@ jobs:
           username: ${{ secrets.DOCKER_CONTAINER_REGISTRY_USERNAME }}
           password: ${{ secrets.DOCKER_CONTAINER_REGISTRY_PASSWORD }}
           registry: ${{ env.DOCKER_CONTAINER_REGISTRY_TOKEN }}
+
         
       - name: Build and Push Container Artifact on Docker Hub
         run: |
