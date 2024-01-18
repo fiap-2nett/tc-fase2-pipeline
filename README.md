@@ -1,10 +1,11 @@
-# TechChallenge - HelpDesk API
+# CI/CD Pipeline 
 
-A HelpDesk API é uma plataforma de gerenciamento de tickets que visa aprimorar a gestão operacional,
-oferecendo maior controle e centralização das informações relacionadas aos tickets. Este sistema permite que
-os usuários criem, gerenciem e monitorem o status de tickets, enquanto os administradores têm a capacidade de
-coordenar e controlar todo o processo. Os analistas desempenham um papel crucial na resolução dos tickets e na
-atualização do seu andamento.
+Com o objetivo de manter o foco na criação de uma CI/CD Pipeline utilizando Github Actions que
+é um dos entregáveis necessários para o Tech Challenge Fase 2. Foi reaproveitado o trabalho entregue no Tech Challenge Fase 1.
+
+Caso queira verificar o projeto entregue na fase anterior, vide link abaixo.:
+
+- [Tech Challenge 1](https://github.com/fiap-2nett/tc-fase1)
 
 ## Colaboradores
 
@@ -14,124 +15,226 @@ atualização do seu andamento.
 - [Cesar Julio Spaziante](https://www.linkedin.com/in/cesar-spaziante/) - RM351311
 - [Paulo Felipe do Nascimento de Sousa](https://www.linkedin.com/in/paulo-felipe06/) - RM351707
 
-## Documentação de Requisitos
+## Como funciona a CI/CD Pipeline?
 
-A documentação detalhada de Requisitos Funcionais (RF) e Não Funcionais (RNF) pode ser encontrada na Wiki oficial do projeto. Vide link abaixo.:
+CI/CD Pipelines, incluso a criada neste projeto, tem como objetivo melhorar e automatizar processos envolvidos no Desenvolvimento de Software
+como a integração contínua do código escrito pelos membros da equipe (CI) e a disponibilização e implantação do software em ambiente
+de produção (CD).
 
-[Wiki Oficial HelpDesk API](https://github.com/fiap-2nett/tc-fase1/wiki)
+A seguir temos mais detalhes sobre a CI/CD Pipeline deste projeto.
 
-## Tecnologias utilizadas
+### Triggers (Gatilhos)
 
-- .NET 7.0
-- Entity Framework Core 7.0
-- Swashbuckle 6.5
-- FluentValidation 11.7
-- FluentAssertions 6.12
-- NetArchTest 1.3
-- SqlServer 2019
-- Docker 24.0.5
-- Docker Compose 2.20
+As Triggers (Gatilhos) são eventos que ocasionam a inicialização da Pipeline.
 
-## Arquitetura, Padrões Arquiteturais e Convenções
+Em nosso caso foi assumido que toda vez que houver alterações na Branch (galho/ramificação) "master"
+a Pipeline seria iniciada.
 
-- REST Api
-- Domain-Driven Design
-- EF Code-first
-- Service Pattern
-- Repository Pattern & Unit Of Work
-- Architecture Tests
-- Unit Tests
+Vide abaixo código com comentários.:
 
-## Definições técnicas
+```yaml
+# Nome da Pipeline CI/CD
+name: tc-fase2-pipeline
 
-A solução do HelpDesk API é composta pelos seguintes projetos:
+# Eventos que acionam a execução da pipeline
+on:
+  # Executar a pipeline quando há um push (envio) de código para a branch master
+  push:
+    branches:
+      - master
+  # Executar a pipeline quando há uma pull request (solicitação de envio)
+  pull_request:
+    branches:
+      - master
+ ```
 
-| Projeto                               | Descrição                                                                               |
-|---------------------------------------|-----------------------------------------------------------------------------------------|
-| _TechChallenge.Api_                   | Contém a implementação dos endpoints de comunicação da REST Api.                        |
-| _TechChallenge.Application_           | Contém a implementação dos contratos de comunicação e classes de serviços.              |
-| _TechChallenge.Domain_                | Contém a implementação das entidades e interfaces do domínio da aplicação.              |
-| _TechChallenge.Infrastructure_        | Contém a implementação dos componentes relacionados a infraestrutura da aplicação.      |
-| _TechChallenge.Persistence_           | Contém a implementação dos componentes relacionados a consulta e persistencia de dados. |
-| _TechChallenge.Application.UnitTests_ | Contém a implementação dos testes unitários focados nas classes de serviço.             |
-| _TechChallenge.ArchitectureTests_     | Contém a implementação dos testes de arquitetura.                                       |
+### Variáveis de Ambiente
 
-## Modelagem de dados
+São valores definidos dentro do contexto de ambiente da Pipeline que podem ser reaproveitados durante sua execução.
 
-A HelpDesk API utiliza o paradigma de CodeFirst através dos recursos disponibilizados pelo Entity Framework, no entanto para melhor
-entendimento da modelagem de dados apresentamos a seguir o MER e suas respectivas definições:
+Observe abaixo.:
 
-![image](https://github.com/fiap-2nett/tc-fase1/assets/57924071/5471b1a1-d991-467f-be6e-785f6bb74211)
-
-Com base na imagem acima iremos detalhar as tabelas e os dados contidos em cada uma delas:
-
-| Schema | Tabela       | Descrição                                                                                       |
-|--------|--------------|-------------------------------------------------------------------------------------------------|
-| dbo    | users        | Tabela que contém os dados referentes aos usuários da plataforma.                               |
-| dbo    | roles        | Tabela que contém os dados referentes aos tipos de perfis de usuário da plataforma.             |
-| dbo    | tickets      | Tabela que contém os dados referentes aos tickets criados na plataforma.                        |
-| dbo    | ticketstatus | Tabela que contém os dados referentes aos possíveis status de tickets.                          |
-| dbo    | categories   | Tabela que contém os dados referentes as categorias de tickets.                                 |
-| dbo    | priorities   | Tabela que contém os dados referentes as prioridades/SLAs relacionado as categorias de tickets. |
-
-## Como executar
-
-A HelpDesk API utiliza como banco de dados o SQL Server 2019 ou superior, toda a infraestrtura necessária para execução do projeto
-pode ser provisionada automaticamente através do Docker.
-
-No diretório raíz do projeto, existem os arquivos docker-compose.yml que contém toda a configuração necessária para provisionamento
-dos serviços de infraestrutura, caso opte por executar o SQL Server através de container execute o seguinte comando na raíz do projeto:
-
-```sh
-$ docker compose up -d tc.db
+```yaml
+# Define variáveis de ambiente para a execução da pipeline
+env:
+  # Define a versão do .NET a ser utilizada
+  DOTNET_VERSION: '7.0.x'
+  
+  # Define o diretório onde os pacotes NuGet serão armazenados
+  NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
 ```
 
-O comando acima irá fazer o download da imagem do SQL Server 2019 e criará automaticamente um container local com o serviço em execução.
-Este comando irá configurar o container de SQL Server, todo o processo de criação do banco de dados e carregamento de tabelas padrões será
-realizado pelo Entity Framework no momento da execução do projeto.
+### Jobs (Trabalhos)
 
-Caso não queira utilizar o SQL Server através de container Docker, lembre-se de alterar a ConnectionString no arquivo appsettings.json existente
-no projeto TechChallenge.Api.
+Os Jobs são coleções de tarefas responsáveis pelas ações dentro de um Pipeline, como restaurar dependências,
+testes unitários e entre outros.
 
-## Como executar os testes
+A seguir temos um detalhamento de cada Job envolvido nesta Pipeline.
 
-A HelpDesk API disponibiliza testes automatizados para garantir que o processo contempla as regras de negócio pré-definidas no requisito
-do projeto. A execução dos testes pode ser feita através de Visual Studio ou via dotnet CLI.
+#### Build
 
-### Obter JWT Bearer Tokens
+Job responsável por configurar, restaurar as dependências e compilar nosso projeto .NET 7.
 
-Para consumir os endpoints é necessário obter o token bearer, por padrão o projeto irá criar alguns usuários fictícios com diferentes perfis
-de acesso, são eles:
+```yaml
+# Definição do bloco "jobs", onde são definidos os jobs a serem executados na pipeline
+jobs:
+  # Job chamado "build"
+  build:
+    # Especifica o ambiente em que o job será executado (Ubuntu mais recente)
+    runs-on: ubuntu-latest
 
-| Usuário                   | Senha       | Perfil        |
-|---------------------------|-------------|---------------|
-| admin@techchallenge.app   | Admin@123   | Administrador |
-| ailton@techchallenge.app  | Ailton@123  | Geral         |
-| bruno@techchallenge.app   | Bruno@123   | Analista      |
-| cecilia@techchallenge.app | Cecilia@123 | Geral         |
-| cesar@techchallenge.app   | Cesar@123   | Analista      | 
-| paulo@techchallenge.app   | Paulo@123   | Geral         |
+    # Lista de passos (steps) que compõem o job
+    steps:
+      # Passo 1: Faz o checkout do código do repositório
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-Caso queira você poderá criar o seu próprio usuário através do endpoint:
+      # Passo 2: Configurar o ambiente .NET usando a versão definida nas variáveis de ambiente
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
 
-```curl
-POST /authentication/register
+      # Passo 3: Utiliza o cache para armazenar pacotes NuGet, caso já tenham sido baixados anteriormente
+      - uses: actions/cache@v3
+        with:
+          path: ${{ env.NUGET_PACKAGES }}
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      # Passo 4: Restaura as dependências do projeto usando o comando "dotnet restore"
+      - name: Restore dependencies
+        run: dotnet restore TechChallenge.sln
+
+      # Passo 5: Compila o projeto usando o comando "dotnet build"
+      - name: Build
+        run: dotnet build TechChallenge.sln --no-restore
+
 ```
 
-*Observação: para novos usuários será atribuído o perfil Geral.*
+#### Unit-test
 
-### Testes unitários, integração e arquiteturais
+Testes Unitários são responsável por isolar algumas partes menores de nosso sistema e as testar isoladamente para garantir que estas partes
+estão se comportando corretamente.
+São fornecidos dados de entrada fictícios devido à necessidade de isolamento dos Testes Unitários.
 
-Para executar os testes através do dotnet CLI, no diretório raíz do projeto execute o seguinte comando:
+```yaml
+# Definição do job chamado "unit-test"
+unit-test:
 
-```sh
-$ dotnet test TechChallenge.sln
+  # Especifica o ambiente em que o job será executado (Ubuntu mais recente)
+  runs-on: ubuntu-latest
+
+  # Indica que este job depende da conclusão do job chamado "build"
+  needs: build
+
+    # Lista de passos (steps) que compõem o job
+    steps:
+
+    # Como cada Job funciona de maneira isolada, os passos para configurar, restaurar as dependências
+    # e compilar nosso projeto devem ser replicados novamente. Os "Passos" de 1 à 5 são exatamente iguais
+    # ao que vimos no Job de Build e por isso foram omitidos deste trecho de documentação. 
+
+    # Passo 6: Executar os testes unitários usando o comando "dotnet test"
+    - name: UnitTest
+      run: dotnet test tests/TechChallenge.Application.UnitTests/TechChallenge.Application.UnitTests.csproj --no-build --verbosity normal
 ```
 
-Caso queria uma versão de resultado com mais detalhes, execute o seguinte comando:
+#### Architecture-test
 
-```sh
-$ dotnet test --logger "console;verbosity=detailed" TechChallenge.sln
+Os Testes de Arquitetura são responsáveis por garantir que 
+a arquitetura da solução está orientada à Domínio, portanto, aderente ao DDD.
+
+```yaml
+# Definição do job chamado "architecture-test"
+architecture-test:
+  # Especifica o ambiente em que o job será executado (Ubuntu mais recente)
+  runs-on: ubuntu-latest
+
+  # Indica que este job depende da conclusão do job chamado "build"
+  needs: build
+
+  # Lista de passos (steps) que compõem o job
+    steps:
+
+    # Como cada Job funciona de maneira isolada, os passos para configurar, restaurar as dependências
+    # e compilar nosso projeto devem ser replicados novamente. Os "Passos" de 1 à 5 são exatamente iguais
+    # ao que vimos no Job de Build e por isso foram omitidos deste trecho de documentação. 
+
+  # Lista de passos (steps) que compõem o job
+  
+    # Passo 6: Executar testes de arquitetura usando o comando "dotnet test"
+    - name: ArchitectureTest
+      run: dotnet test tests/TechChallenge.ArchitectureTests/TechChallenge.ArchitectureTests.csproj --no-build --verbosity normal
 ```
 
-*Observação: para execução dos testes de integração é necessário ter uma instância do SQL Server em execução.*
+#### Integration-test
+
+Diferente dos Testes Unitários, os Testes Integrados visam garantir que diferentes partes de um sistema
+interagem corretamente quando combinadas.
+
+```yaml
+# Definição do job chamado "integration-test"
+integration-test:
+  # Especifica o ambiente em que o job será executado (Ubuntu mais recente)
+  runs-on: ubuntu-latest
+
+  # Indica que este job depende da conclusão do job chamado "build"
+  needs: build
+
+  # Lista de passos (steps) que compõem o job
+  steps:
+
+    # Como cada Job funciona de maneira isolada, os passos para configurar, restaurar as dependências
+    # e compilar nosso projeto devem ser replicados novamente. Os "Passos" de 1 à 5 são exatamente iguais
+    # ao que vimos no Job de Build e por isso foram omitidos deste trecho de documentação. 
+
+    # Passo 6: Executar testes de integração usando o comando "dotnet test"
+    - name: IntegrationTest
+      run: dotnet test tests/TechChallenge.Api.IntegrationTests/TechChallenge.Api.IntegrationTests.csproj --no-build --verbosity normal
+```
+
+#### *Para melhorar a performance da Pipeline os Jobs Unit-test, Architecture-test e Integration-test executam paralelamente.
+
+#### Container-publish
+
+Job responsável pela publicação da imagem de nosso Container no Docker Hub.
+
+[Imagem no Docker Hub](https://hub.docker.com/repository/docker/techchallengephase2/tech-challenge2-pipeline)
+
+```yaml
+# Definição do job chamado "container-publish"
+container-publish:
+  # Especifica o ambiente em que o job será executado (Ubuntu mais recente)
+  runs-on: ubuntu-latest
+
+  # Indica que este job depende da conclusão de outros jobs antes de ser executado
+  needs: [build, unit-test, architecture-test, integration-test]
+
+  # Lista de passos (steps) que compõem o job
+  steps:
+    # Passo 1: Faz o checkout do código do repositório
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    # Passo 2: Realiza o login no Container Registry (Docker Hub, neste caso)
+    - name: Login no Container Registry
+      uses: docker/login-action@v1.6.0
+      with:
+        # Utiliza as credenciais armazenadas como secrets no repositório
+        username: ${{ secrets.DOCKER_CONTAINER_REGISTRY_USERNAME }}
+        password: ${{ secrets.DOCKER_CONTAINER_REGISTRY_PASSWORD }}
+
+    # Passo 3: Constrói e publica a imagem do contêiner no Docker Hub
+    - name: Build and Push Container Artifact on Docker Hub
+      run: |
+        # Constrói a imagem do contêiner usando o Dockerfile no caminho especificado
+        docker build . --file src/TechChallenge.Api/Dockerfile -t techchallengephase2/tech-challenge2-pipeline:latest
+
+        # Publicar a imagem do contêiner no Docker Hub
+        docker push techchallengephase2/tech-challenge2-pipeline:latest
+
+```
+
+
