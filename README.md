@@ -201,7 +201,7 @@ integration-test:
 
 Job responsável pela publicação da imagem de nosso Container no Docker Hub.
 
-[Imagem no Docker Hub](https://hub.docker.com/repository/docker/techchallengephase2/tech-challenge2-pipeline)
+[Link para Imagem no Docker Hub](https://hub.docker.com/repository/docker/techchallengephase2/tech-challenge2-pipeline)
 
 ```yaml
 # Definição do job chamado "container-publish"
