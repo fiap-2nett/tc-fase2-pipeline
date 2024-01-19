@@ -1,3 +1,5 @@
+[![tc-fase2-pipeline](https://github.com/fiap-2nett/tc-fase2-pipeline/actions/workflows/dotnet.yml/badge.svg?branch=master)](https://github.com/fiap-2nett/tc-fase2-pipeline/actions/workflows/dotnet.yml)
+
 # CI/CD Pipeline 
 
 Com o objetivo de manter o foco na criação de uma CI/CD Pipeline utilizando Github Actions que
